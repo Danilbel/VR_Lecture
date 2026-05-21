@@ -22,6 +22,19 @@
                 </div>
 
                 <div class="control-panel">
+                    <div class="settings-block" style="margin-bottom: 20px;">
+                        <h3>Sensor Connection</h3>
+                        <div class="input-field">
+                            <label for="wsServer">Server info:</label>
+                            <input type="text" id="wsServer" value="" placeholder="Host:Ip" style="padding: 5px;" />
+                        </div>
+                        <div class="input-field" style="text-align: center;">
+                            <span id="sensor-status" style="color: #e74c3c; font-weight: bold;">Disconnected</span>
+                        </div>
+                        <div class="reset-button-area" style="margin-top: 15px;">
+                            <button id="btnConnect" onclick="toggleConnection()" style="background-color: #28a745;">Connect to Phone</button>
+                        </div>
+                    </div>
                     <div class="settings-block">
                         <h3>Stereo Settings</h3>
                         <div class="input-field">

@@ -72,8 +72,10 @@ function draw() {
 
     
     /* Get the view matrix from the SimpleRotator object.*/
-    let modelView = spaceball.getViewMatrix();
-
+    let trackballMatrix = spaceball.getViewMatrix();
+    // Combine the trackball rotation with the sensor rotation
+    let modelView = m4.multiply(trackballMatrix, sensorRotationMatrix);
+    
     let rotateToPointZero = m4.axisRotation([0.707,0.707,0], 0.7);
     let translateToPointZero = m4.translation(0,0,-10);
 
@@ -307,4 +309,85 @@ window.resetParameters = function() {
     document.getElementById("nearClip").value = 8.0;
     document.getElementById("convergence").value = 14.0;
     updateParams();
+}
+
+let sensorRotationMatrix = m4.identity();
+let sensorSocket = null;
+
+function processOrientation(values) {
+    // values[0] = Azimuth (Z)
+    // values[1] = Pitch (X)
+    // values[2] = Roll (Y)
+    // degrees to radians
+    let azimuth = values[0] * (Math.PI / 180.0);
+    let pitch = values[1] * (Math.PI / 180.0);
+    let roll = values[2] * (Math.PI / 180.0);
+
+    let matZ = m4.zRotation(azimuth);
+    let matX = m4.xRotation(pitch);
+    let matY = m4.yRotation(roll);
+
+    //  ZXY: Matrix = Z * X * Y
+    let matZX = m4.multiply(matZ, matX);
+    sensorRotationMatrix = m4.multiply(matZX, matY);
+}
+
+function setSensorStatus(msg, color) {
+    const el = document.getElementById('sensor-status');
+    if (el) {
+        el.textContent = msg;
+        if (color) el.style.color = color;
+    }
+}
+
+window.toggleConnection = function() {
+    let btn = document.getElementById("btnConnect");
+    let wsServer = document.getElementById("wsServer").value;
+
+    if (sensorSocket && sensorSocket.readyState === WebSocket.OPEN) {
+        sensorSocket.close();
+        return;
+    }
+
+    const url = `ws://${wsServer}/sensor/connect?type=android.sensor.orientation`;
+    
+    setSensorStatus('Connecting...', '#f39c12');
+    btn.innerText = "Connecting...";
+
+    try {
+        sensorSocket = new WebSocket(url);
+    } catch (e) {
+        setSensorStatus('Error: ' + e.message, '#e74c3c');
+        btn.innerText = "Connect to Phone";
+        return;
+    }
+
+    sensorSocket.onopen = function() {
+        setSensorStatus('Connected', '#2ecc71');
+        btn.innerText = "Disconnect";
+        btn.style.backgroundColor = "#dc3545"; 
+        sensorRotationMatrix = m4.identity();
+    };
+
+    sensorSocket.onmessage = function(event) {
+        try {
+            let msg = JSON.parse(event.data);
+            if (msg.values && msg.values.length >= 3) {
+                processOrientation(msg.values);
+            }
+        } catch (e) {
+            console.error("Data parsing error:", e);
+        }
+    };
+
+    sensorSocket.onerror = function() {
+        setSensorStatus('Connection error', '#e74c3c');
+    };
+
+    sensorSocket.onclose = function() {
+        setSensorStatus('Disconnected', '#e74c3c');
+        btn.innerText = "Connect to Phone";
+        btn.style.backgroundColor = "#28a745";
+        sensorSocket = null;
+    };
 }
