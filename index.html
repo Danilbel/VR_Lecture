@@ -1,99 +1,24 @@
 <!doctype html>
 <html>
     <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta charset="utf-8" />
+        <title>Control Task - AR Kiss Surface</title>
 
-        <title>PA#1</title>
-        <link rel="stylesheet" href="./style.css" />
+        <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+        <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+
+        <script src="./Model.js"></script>
     </head>
-    <body onload="init()">
-        <div class="page-container">
-            <div class="info-header">
-                <h2>Kiss Surface Stereo & WebCam</h2>
-                <p id="message">
-                    Drag your mouse on the canvas to rotate the model.<br />
-                    (On a touch screen, you can use your finger.)
-                </p>
-            </div>
 
-            <div class="main-layout">
-                <div id="canvas-holder">
-                    <canvas width="700" height="700" id="webglcanvas" style="background-color: #1e1e1e"></canvas>
-                </div>
+    <body style="margin: 0; overflow: hidden">
+        <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" vr-mode-ui="enabled: false">
+            <a-marker type="pattern" url="pattern.patt">
+                <a-entity
+                    kiss-surface
+                    animation="property: rotation; to: 0 360 0; loop: true; dur: 8000; easing: linear"></a-entity>
+            </a-marker>
 
-                <div class="control-panel">
-                    <div class="settings-block" style="margin-bottom: 20px;">
-                        <h3>Sensor Connection</h3>
-                        <div class="input-field">
-                            <label for="wsServer">Server info:</label>
-                            <input type="text" id="wsServer" value="" placeholder="Host:Ip" style="padding: 5px;" />
-                        </div>
-                        <div class="input-field" style="text-align: center;">
-                            <span id="sensor-status" style="color: #e74c3c; font-weight: bold;">Disconnected</span>
-                        </div>
-                        <div class="reset-button-area" style="margin-top: 15px;">
-                            <button id="btnConnect" onclick="toggleConnection()" style="background-color: #28a745;">Connect to Phone</button>
-                        </div>
-                    </div>
-                    <div class="settings-block">
-                        <h3>Stereo Settings</h3>
-                        <div class="input-field">
-                            <label for="eyeSep">Eye Separation: <span id="eyeSepVal">0.7</span></label>
-                            <input
-                                type="range"
-                                id="eyeSep"
-                                min="0"
-                                max="2"
-                                step="0.01"
-                                value="0.7"
-                                oninput="updateParams()" />
-                        </div>
-                        <div class="input-field">
-                            <label for="fov">Field of View: <span id="fovVal">0.4</span></label>
-                            <input
-                                type="range"
-                                id="fov"
-                                min="0.1"
-                                max="2.0"
-                                step="0.01"
-                                value="0.4"
-                                oninput="updateParams()" />
-                        </div>
-                        <div class="input-field">
-                            <label for="nearClip">Near Clipping: <span id="nearClipVal">8.0</span></label>
-                            <input
-                                type="range"
-                                id="nearClip"
-                                min="1.0"
-                                max="15.0"
-                                step="0.1"
-                                value="8.0"
-                                oninput="updateParams()" />
-                        </div>
-                        <div class="input-field">
-                            <label for="convergence">Convergence: <span id="convergenceVal">14.0</span></label>
-                            <input
-                                type="range"
-                                id="convergence"
-                                min="5.0"
-                                max="30.0"
-                                step="0.1"
-                                value="14.0"
-                                oninput="updateParams()" />
-                        </div>
-                    </div>
-                    <div class="reset-button-area">
-                        <button onclick="resetParameters()">Reset</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+            <a-entity camera></a-entity>
+        </a-scene>
     </body>
-    <script src="./Utils/trackball-rotator.js"></script>
-    <script src="./Utils/m4.js"></script>
-    <script src="./shader.gpu"></script>
-    <script src="./Model.js"></script>
-    <script src="./StereoCamera.js"></script>
-    <script src="./Texture.js"></script>
-    <script src="./main.js"></script>
 </html>
